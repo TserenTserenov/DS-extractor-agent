@@ -12,39 +12,30 @@
 - launchd: каждые 3 часа (автоматически)
 - Вручную: `extractor.sh inbox-check`
 
+## Ограничения
+
+- **Лимит за цикл:** обработай не более **5 captures** за один запуск. Если pending > 5, обработай первые 5 (самые старые), остальные — в следующем цикле.
+- **Lazy reading:** НЕ читай все Pack'и заранее. Сначала классифицируй capture → определи целевой Pack → читай ТОЛЬКО его манифест, сущности и онтологию.
+
 ## Алгоритм
+
+### Шаг 0: Прочитать конфигурацию
+
+1. Прочитай `~/Github/DS-extractor-agent/config/routing.md` — таблицы маршрутизации (Pack'и, типы, директории).
+2. Прочитай `~/Github/DS-extractor-agent/config/feedback-log.md` — лог отклонённых кандидатов. Если capture похож на ранее отклонённый (по паттерну) → пропусти, вердикт: reject (previously rejected).
 
 ### Шаг 1: Проверить inbox
 
 1. Прочитай `~/Github/DS-my-strategy/inbox/captures.md`
 2. Найди все pending записи (секции `### ...` с содержимым, без метки `[processed]`)
 3. Если pending записей нет → напиши в лог `No pending captures in inbox` и **заверши работу**
+4. Если pending > 5 → возьми первые 5 (по порядку в файле)
 
-### Шаг 2: Прочитать контекст
-
-Для маршрутизации и формализации прочитай:
-
-| Файл | Зачем |
-|------|-------|
-| Pack-манифесты (`00-pack-manifest.md`) | Bounded context Pack'ов |
-| Существующие сущности целевых директорий Pack'ов | Назначение ID, проверка дубликатов |
-| `ontology.md` целевых Pack'ов | Согласование терминов |
-| `01B-distinctions.md` целевых Pack'ов | Проверка конфликтов |
-
-Pack-репо и их пути:
-
-| Домен | Pack | Путь |
-|-------|------|------|
-| Платформа, ИТ, ИИ-системы | PACK-digital-platform | `~/Github/PACK-digital-platform/pack/digital-platform/` |
-| Созидатель, развитие | PACK-personal | `~/Github/PACK-personal/pack/personal/` |
-| Экосистема, клуб | PACK-ecosystem | `~/Github/PACK-ecosystem/pack/ecosystem/` |
-| Мастерская (MIM) | PACK-MIM | `~/Github/PACK-MIM/pack/mim/` |
-
-### Шаг 3: Обработать каждый capture
+### Шаг 2: Обработать каждый capture (max 5)
 
 Для каждого pending capture выполни стандартный пайплайн:
 
-**3a. Классификация:**
+**2a. Классификация:**
 
 | Тип | Признак | Код |
 |-----|---------|-----|
@@ -53,38 +44,33 @@ Pack-репо и их пути:
 | Метод | Способ действия, IPO | `method` |
 | Рабочий продукт | Тип артефакта | `wp` |
 | Failure mode | Типовая ошибка | `fm` |
+| Характеристика | Качество, свойство | `chr` |
 | Правило | Ограничение, 1-3 строки | `rule` |
 
-**3b. Маршрутизация:**
+**2b. Маршрутизация (по `config/routing.md`):**
 
-Определи Pack по домену (таблица выше) и директорию по типу:
+1. Определи Pack по домену (routing.md § 1)
+2. Определи директорию по типу (routing.md § 2)
+3. Прочитай `00-pack-manifest.md` ТОЛЬКО целевого Pack'а → проверь bounded context
 
-| Тип | Директория |
-|-----|-----------|
-| `entity` | `02-domain-entities/` |
-| `distinction` | `01-domain-contract/01B-distinctions.md` |
-| `method` | `03-methods/` |
-| `wp` | `04-work-products/` |
-| `fm` | `05-failure-modes/` |
-| `rule` | `CLAUDE.md` или `memory/` |
+**2c. Формализация (lazy reading):**
 
-**3c. Формализация:**
-
-1. Прочитай целевую директорию → найди существующие файлы → назначь ID (max + 1)
-2. Имя файла: `{PREFIX}.{TYPE}.{NNN}-{slug}.md`
+1. Прочитай целевую директорию ТОЛЬКО нужного Pack'а → найди существующие файлы → назначь ID (max + 1)
+2. Имя файла: по конвенции из routing.md § 3
 3. Привяжи к родительскому понятию SPF (прочитай `SPF/ontology.md` секция 2)
 4. Создай содержимое по шаблону (шаблоны — в `prompts/session-close.md`, шаг 4d)
 
-**3d. Валидация:**
+**2d. Валидация:**
 
 - [ ] Есть frontmatter?
-- [ ] Правильная директория?
+- [ ] Правильная директория (по routing.md)?
 - [ ] Нет дубликата?
 - [ ] Соответствует bounded context?
 - [ ] Не governance-контент?
 - [ ] Онтология: термины согласованы?
+- [ ] Не похож на паттерн из feedback-log.md?
 
-### Шаг 4: Сгенерировать Extraction Report
+### Шаг 3: Сгенерировать Extraction Report
 
 Создай файл отчёта: `~/Github/DS-my-strategy/inbox/extraction-reports/{YYYY-MM-DD}-inbox-check.md`
 
@@ -98,13 +84,16 @@ type: extraction-report
 source: inbox-check
 date: {YYYY-MM-DD}
 status: pending-review
+processed: N
+remaining: M
 ---
 
 # Extraction Report (Inbox-Check)
 
 **Дата:** {YYYY-MM-DD}
 **Источник:** DS-my-strategy/inbox/captures.md
-**Обработано captures:** N
+**Обработано captures:** N из {total pending}
+**Осталось:** M (будут обработаны в следующем цикле)
 
 ---
 
@@ -149,9 +138,10 @@ status: pending-review
 | Accept | N |
 | Reject | N |
 | Defer | N |
+| Осталось в inbox | M |
 ```
 
-### Шаг 5: Пометить обработанные captures
+### Шаг 4: Пометить обработанные captures
 
 В `DS-my-strategy/inbox/captures.md` — для каждого обработанного capture добавь метку `[processed YYYY-MM-DD]` к заголовку:
 
@@ -160,7 +150,7 @@ status: pending-review
 
 Это предотвращает повторную обработку при следующем inbox-check.
 
-### Шаг 6: Закоммитить
+### Шаг 5: Закоммитить
 
 1. Закоммить `DS-my-strategy/inbox/extraction-reports/{date}-inbox-check.md` (новый отчёт)
 2. Закоммить `DS-my-strategy/inbox/captures.md` (метки processed)
@@ -174,8 +164,9 @@ status: pending-review
 - Не удаляй captures из captures.md — только помечай [processed]
 - Не создавай файлы без frontmatter
 - Не экстрагируй governance-контент (планы, статусы, дедлайны)
-- Не путай bounded context Pack'ов
+- Не путай bounded context Pack'ов (используй routing.md!)
 - Не дублируй существующие сущности
+- Не предлагай кандидаты, похожие на паттерны из feedback-log.md
 
 ## Применение отчёта (отдельная сессия)
 
@@ -185,5 +176,6 @@ status: pending-review
 2. Покажи каждый кандидат пользователю
 3. Пользователь одобряет (accept), отклоняет (reject) или откладывает (defer)
 4. Для accept — создай файл **ровно по тексту из «Готовый текст»**, закоммить в целевой Pack
-5. Для defer — оставь в отчёте, обработай в следующем цикле
-6. Обнови статус отчёта: `status: applied` (в frontmatter)
+5. Для reject — записать причину в `DS-extractor-agent/config/feedback-log.md`
+6. Для defer — оставь в отчёте, обработай в следующем цикле
+7. Обнови статус отчёта: `status: applied` (в frontmatter)
