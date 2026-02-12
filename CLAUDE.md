@@ -20,7 +20,7 @@ Knowledge Extractor — ИИ-система, которая трансформи
 | Bulk Extraction | `prompts/bulk-extraction.md` | Готов к тесту |
 | Cross-Repo Sync | `prompts/cross-repo-sync.md` | Готов к тесту |
 | Knowledge Audit | `prompts/knowledge-audit.md` | Готов к тесту |
-| Inbox-Check | — (описан в PROCESSES.md) | Описан |
+| Inbox-Check | `prompts/inbox-check.md` | Готов к тесту |
 | Ontology Sync | `prompts/ontology-sync.md` | Готов к тесту |
 
 > **Исключение:** Мелкие правила (1-3 строки) → Claude пишет напрямую, без KE. Все остальное знание → только через KE.
@@ -55,6 +55,25 @@ Knowledge Extractor — ИИ-система, которая трансформи
 - `DP.WP.001` — отчёт экстракции
 - `DP.FM.001` — failure mode: информация как знание
 
+## Автоматизация
+
+| Скрипт | Назначение |
+|--------|-----------|
+| `scripts/extractor.sh` | Основной runner (аналог strategist.sh) |
+| `scripts/notify_telegram.sh` | TG уведомления о результатах |
+| `scripts/launchd/com.extractor.inbox-check.plist` | launchd: inbox-check каждые 3h |
+
+**Workspace:** `~/Github` (root — доступ ко всем Pack-репо).
+**Логи:** `~/logs/extractor/`.
+**Отчёты:** `DS-my-strategy/inbox/extraction-reports/`.
+
+**Установка launchd:**
+```bash
+chmod +x scripts/extractor.sh scripts/notify_telegram.sh
+cp scripts/launchd/com.extractor.inbox-check.plist ~/Library/LaunchAgents/
+launchctl load ~/Library/LaunchAgents/com.extractor.inbox-check.plist
+```
+
 ## Конвенция именования агентов
 
 Репозитории ИИ-систем: `DS-{slug}` (пример: `DS-strategist`, `DS-extractor-agent`).
@@ -62,4 +81,4 @@ Knowledge Extractor — ИИ-система, которая трансформи
 
 ---
 
-*Последнее обновление: 2026-02-11*
+*Последнее обновление: 2026-02-12*
