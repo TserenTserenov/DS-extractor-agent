@@ -60,8 +60,9 @@ Knowledge Extractor — ИИ-система, которая трансформи
 | Скрипт | Назначение |
 |--------|-----------|
 | `scripts/extractor.sh` | Основной runner (аналог strategist.sh) |
-| `scripts/notify_telegram.sh` | TG уведомления о результатах |
 | `scripts/launchd/com.extractor.inbox-check.plist` | launchd: inbox-check каждые 3h |
+
+**Уведомления:** Делегированы Синхронизатору (`DS-synchronizer/scripts/notify.sh extractor <scenario>`).
 
 **Workspace:** `~/Github` (root — доступ ко всем Pack-репо).
 **Логи:** `~/logs/extractor/`.
@@ -69,7 +70,7 @@ Knowledge Extractor — ИИ-система, которая трансформи
 
 **Установка launchd:**
 ```bash
-chmod +x scripts/extractor.sh scripts/notify_telegram.sh
+chmod +x scripts/extractor.sh
 cp scripts/launchd/com.extractor.inbox-check.plist ~/Library/LaunchAgents/
 launchctl load ~/Library/LaunchAgents/com.extractor.inbox-check.plist
 ```
