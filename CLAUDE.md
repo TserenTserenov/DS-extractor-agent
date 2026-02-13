@@ -80,6 +80,17 @@ launchctl load ~/Library/LaunchAgents/com.extractor.inbox-check.plist
 Репозитории ИИ-систем: `DS-{slug}` (пример: `DS-strategist`, `DS-extractor-agent`).
 Привязка к Pack через `source-of-truth` в CLAUDE.md, не через имя репо.
 
+## SOTA: AI-Accelerated Ontology Engineering (DP.SOTA.007)
+
+> Экстрактор — реализация AI-Accelerated OE: LLM делает first pass, человек валидирует.
+
+- detect = ontology gap detection
+- classify = concept classification
+- route = ontology placement
+- formalize = concept formalization with frontmatter
+- validate = consistency check (F-G-R trust model)
+- При bulk extraction: LLM-assisted draft → human review → accept/reject
+
 ---
 
-*Последнее обновление: 2026-02-12*
+*Последнее обновление: 2026-02-13*
