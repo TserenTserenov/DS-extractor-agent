@@ -8,21 +8,19 @@
 
 ## Контекст
 
-Мастер-онтология: `DS-my-strategy/ontology.md` — агрегированный индекс всех понятий со ссылками на Pack-источники.
+Общая мастер-онтология: `DS-ecosystem-development/ontology.md` — агрегированный индекс общих понятий (DP + ECO + MIM, 31 понятие).
+Личная онтология: `DS-my-strategy/ontology.md` — персональные понятия (PD, 9 понятий) + ссылка на общую.
 
 Pack-онтологии:
-- `PACK-personal/ontology.md` (PD)
-- `PACK-digital-platform/ontology.md` (DP)
-- `PACK-ecosystem/ontology.md` (ECO)
-- `PACK-MIM/ontology.md` (MIM)
+- `PACK-personal/ontology.md` (PD) — личный
+- `PACK-digital-platform/ontology.md` (DP) — общий
+- `PACK-ecosystem/ontology.md` (ECO) — общий
+- `PACK-MIM/ontology.md` (MIM) — общий
 
-Downstream-онтологии:
-- `DS-ecosystem-development/ontology.md`
-- `DS-my-strategy/ontology.md` (мастер)
-- `DS-strategist-agent/ontology.md`
-- `DS-extractor-agent/ontology.md`
-- `digital-twin-mcp/ontology.md`
-- `aist_bot_newarchitecture/ontology.md`
+Downstream-онтологии (ссылаются на общую мастер-онтологию):
+- `DS-ecosystem-development/ontology.md` (= общая мастер-онтология)
+- `DS-my-strategy/ontology.md` (= личная онтология)
+- другие downstream: ссылаются, не определяют
 
 ---
 
@@ -52,7 +50,7 @@ cd <PACK-repo> && git log --oneline -5 -- ontology.md
 
 | Событие | Действие |
 |---------|----------|
-| Новое понятие в Pack ontology.md | → Добавить в мастер-онтологию (DS-my-strategy/ontology.md) |
+| Новое понятие в Pack ontology.md | → Добавить в общую мастер-онтологию (DS-ecosystem-development/ontology.md) |
 | Понятие изменилось в Pack | → Обновить определение в мастер-онтологии |
 | Понятие удалено из Pack | → Пометить в мастер-онтологии как removed |
 | Новое понятие в мастер-онтологии без ссылки на Pack | → ОШИБКА: каждое понятие должно иметь Pack-источник |
