@@ -42,6 +42,7 @@
 | Протестировать cross-repo-sync (при изменении Pack) | Downstream актуален |
 | Протестировать ontology-sync | Онтологии синхронизированы |
 | launchd: audit (еженедельно, Пн 02:00) | Второй headless процесс |
+| **Headless → Claude API (ArchGate):** inbox-check, audit с CLI headless → Claude API | Снимает конкуренцию за CLI process |
 
 **Критерий перехода:** 7/7 статусов = «Работает».
 
