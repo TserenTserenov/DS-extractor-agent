@@ -332,6 +332,30 @@ epistemic_stage: emerging
 4. Для defer — запиши в `DS-my-strategy/inbox/` для следующего цикла.
 5. Для «противоречит» — обсуди с пользователем, какая версия правильная.
 
+### Шаг 8b: Selective Reindex (DP.AISYS.013 § 4.8)
+
+> **После** применения accept-кандидатов — переиндексировать изменённые Pack-источники, чтобы новое знание стало searchable через knowledge-mcp.
+
+**Алгоритм:**
+
+1. Собери список Pack-репо, куда были записаны accept-кандидаты на шаге 8.
+2. **Фильтр:** Исключи CLAUDE.md, memory/, DS-my-strategy (не индексируются / governance).
+3. **Порог:** Если суммарно записано >20 файлов → пропустить (будет daily reindex 02:00). Сообщить: *«>20 файлов, индексация отложена до 02:00.»*
+4. Для каждого затронутого source — вызвать:
+
+```bash
+~/Github/DS-MCP/knowledge-mcp/scripts/selective-reindex.sh <source1> [<source2> ...]
+```
+
+Пример: если записано в PACK-digital-platform и PACK-personal:
+```bash
+~/Github/DS-MCP/knowledge-mcp/scripts/selective-reindex.sh PACK-digital-platform PACK-personal
+```
+
+5. **Результат:** Сообщить пользователю:
+   - *«Reindex: N источников, M docs проиндексировано за X сек. Знание searchable.»*
+   - Или *«Reindex пропущен (нет записей в Pack).»*
+
 ## Что НЕ делать
 
 - Не записывай ничего без одобрения пользователя
